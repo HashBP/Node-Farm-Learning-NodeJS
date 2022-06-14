@@ -18,6 +18,26 @@ const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, "u
 const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, "utf-8");
 const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, "utf-8");
 
+const replaceFunc= (tempCard,data)=>{
+let obj=tempCard.replace(/{%Logo%}/g,data.image); ``
+obj=obj.replace(/{%ProductName%}/g,data.productName);
+obj=obj.replace(/{%Quantity%}/g,data.quantity);
+obj=obj.replace(/{%Price%}/g,data.price);
+obj=obj.replace(/{%id%}/g,data.id);
+obj=obj.replace(/{%Place%}/g,data.from);
+obj=obj.replace(/{%Nutrient%}/g,data.nutrients);
+obj=obj.replace(/{%Number%}/g,data.quantity);
+obj=obj.replace(/{%Price%}/g,data.price);
+obj=obj.replace(/{%Description%}/g,data.description);
+
+if(!data.organic) {obj=obj.replace(/{%Not Organic%}/g,'not-organic');}
+
+console.log(obj);
+return obj;
+
+}
+
+
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const responseData = JSON.parse(data);
 
@@ -28,7 +48,9 @@ const server = http.createServer((req, res) => {
 
   if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, { "Content-type": "text/html" });
-    res.end("This is overview");
+    const content=responseData.map(e=>replaceFunc(tempCard,e)).join('');
+    const output=tempOverview.replace('{%Cards%}',content);
+    res.end(output);
   }
 
   //Product section
